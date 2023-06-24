@@ -8,8 +8,8 @@ import { useEffect, useState } from "react";
 import { IntegrationCard } from "~/components/integartion.card";
 export const meta: V2_MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "Harmony Hub" },
+    { name: "description", content: "Productivity Unified" },
   ];
 };
 type AsyncReturnType<T extends (...args: any) => Promise<any>> = T extends (
