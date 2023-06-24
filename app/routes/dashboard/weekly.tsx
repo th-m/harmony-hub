@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/remix";
-import { useKollaSDK, useKollaEvents } from "@kolla/react-sdk";
+import { useKollaEvents } from "@kolla/react-sdk";
 import { useFetcher } from "@remix-run/react";
 import {
   Chart as ChartJS,
@@ -54,6 +54,14 @@ export const options = {
     title: {
       display: true,
       text: ` ${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
+    },
+  },
+  scales: {
+    x: {
+      stacked: true,
+    },
+    y: {
+      stacked: true,
     },
   },
 };

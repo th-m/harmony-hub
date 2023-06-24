@@ -5,9 +5,9 @@ import { SignedIn, UserButton, SignedOut } from "@clerk/remix";
 import { Link, NavLink } from "@remix-run/react";
 
 const navigation = [
-  { name: "Daily", href: "/dashboard/daily" },
-  { name: "Weekly", href: "/dashboard/weekly" },
-  { name: "Quarterly", href: "/dashboard/quarterly" },
+  // { name: "Daily", href: "/dashboard/daily" },
+  { name: "Dashboard", href: "/dashboard/weekly" },
+  // { name: "Quarterly", href: "/dashboard/quarterly" },
 ];
 
 export function Header() {

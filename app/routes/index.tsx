@@ -1,5 +1,5 @@
 import type { V2_MetaFunction } from "@remix-run/node";
-import { SignedIn } from "@clerk/remix";
+import { SignedIn, SignedOut } from "@clerk/remix";
 
 import { Jumbo } from "~/components/jumbo";
 import { useKollaEvents, useKollaSDK } from "@kolla/react-sdk";
@@ -52,9 +52,12 @@ export default function Index() {
           </div>
         </div>
       </SignedIn>
-      {/* <SignedOut> */}
+      <SignedOut>
+        <div className="pt-24 max-w-4xl m-auto ">
+          <img src="/assets/logo/secondary.png" />
+        </div>
+      </SignedOut>
       <Jumbo />
-      {/* </SignedOut> */}
     </>
   );
 }
