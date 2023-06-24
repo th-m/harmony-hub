@@ -13,6 +13,12 @@ const getSleepURL = (start: Date,end:Date) => {
   return `https://api.fitbit.com/1.2/user/-/sleep/list.json?afterDate=${intervalStart}&sort=asc&offset=0&limit=7`;
 };
 
+const getAZMURL = (end:Date, p:typeof period[number]) => {
+  
+  const intervalEnd = formatDate(end);
+  return `https://api.fitbit.com/1/user/-/activities/active-zone-minutes/date/${intervalEnd}/${p}.json`;
+};
+
 
   export interface SleepResponse {
     pagination: Pagination
@@ -95,6 +101,21 @@ const getSleepURL = (start: Date,end:Date) => {
     minutes: number
     thirtyDayAvgMinutes: number
   }
+
+  export interface AZMResponse {
+    'activities-active-zone-minutes': AZM[]
+  }
+  export interface AZM {
+    dateTime: string
+    value: Value
+  }
+  
+  export interface Value {
+    fatBurnActiveZoneMinutes: number
+    cardioActiveZoneMinutes: number
+    activeZoneMinutes: number
+  }
+  
   
 export async function sleepSummary({ start, end, token }: Args) {
   const myHeaders = new Headers();
@@ -105,10 +126,36 @@ export async function sleepSummary({ start, end, token }: Args) {
     method: "GET",
     headers: myHeaders,
   };
-  const url = getSleepURL(start,end);
+  const sleepURL = getSleepURL(start,end);
 
-  const fitbitSleep = await fetch(url, requestOptions);
+  const fitbitSleep = await fetch(sleepURL, requestOptions);
   const data:SleepResponse = await fitbitSleep.json();
+  
+  
+  return data;
+}
+const period = ['1d', '7d', '30d', '1w', '1m', '3m', '6m', '1y'] as const;
+interface azmArgs {
+  period: typeof period[number];
+  end: Date;
+  token: string;
+}
+
+export async function azmSummary({ end, token, period }: azmArgs) {
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", `Bearer ${token}`);
+
+  const requestOptions: RequestInit = {
+    method: "GET",
+    headers: myHeaders,
+  };
+  
+  const azmURL = getAZMURL(end,period);
+
+
+  const fitbitAZM = await fetch(azmURL, requestOptions);
+  const data:AZM[] = await fitbitAZM.json();
   
   return data;
 }

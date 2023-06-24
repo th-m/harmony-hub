@@ -12,11 +12,12 @@ import {
 } from "chart.js";
 import { useEffect, useMemo } from "react";
 import { Bar } from "react-chartjs-2";
-import { Sleep, SleepResponse } from "~/models/fitbit.server";
-import { WakatimeSummary } from "~/models/wakatime.server";
+import type { AZM, AZMResponse, Sleep, SleepResponse } from "~/models/fitbit.server";
+import type { WakatimeSummary } from "~/models/wakatime.server";
 import { addDays, formatDate, weekStartEnd } from "~/utils/date";
 import { msToHours } from "~/utils/time";
-
+import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import type { Issue } from "@linear/sdk";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -88,22 +89,40 @@ export default function Daily() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated]);
 
-  const sleepData: Sleep[] = useMemo(() => {
+  const [sleepData, azmData] = useMemo(() => {
     if (!fitbitFetcher?.data) {
       return [];
     }
-    const sleepResponse = fitbitFetcher.data as { sleep: SleepResponse };
-    const sleepData = sleepResponse.sleep.sleep;
+    const resp = fitbitFetcher.data as {
+      sleep: SleepResponse;
+      "azm": AZMResponse;
+    };
+    const sleepData = resp.sleep.sleep;
+    console.log(resp)
+    const azm = resp['azm']["activities-active-zone-minutes"];
     const mappedSleep: Record<string, Sleep> = sleepData.reduce((acc, prev) => {
       if (weekMap[prev.dateOfSleep]) {
         return { ...acc, [prev.dateOfSleep]: prev };
       }
       return acc;
     }, {});
-    const array = Object.keys(weekMap).map(
+
+    const mappedAZM: Record<string, AZM> = azm.reduce((acc, prev) => {
+      if (weekMap[prev.dateTime]) {
+        return { ...acc, [prev.dateTime]: prev };
+      }
+      return acc;
+    }, {});
+    const sleepArray: Sleep[] = Object.keys(weekMap).map(
       (key) => mappedSleep?.[key] ?? undefined
     );
-    return array;
+
+    const azmArray: AZM[] = Object.keys(weekMap).map(
+      (key) => mappedAZM?.[key] ?? undefined
+    );
+
+    // AZM
+    return [sleepArray, azmArray];
   }, [fitbitFetcher]);
 
   const wakaData = useMemo(
@@ -115,9 +134,19 @@ export default function Daily() {
     wakaData?.data?.map((datum) => datum.grand_total.total_seconds / 60 / 60) ??
     [];
 
-  const timeSleeping = sleepData.map((sleep) =>
+  const timeSleeping = sleepData?.map((sleep) =>
     msToHours(sleep?.duration ?? 0)
   );
+  const timeExercising = azmData?.map((azm) => {
+    return (azm?.value?.activeZoneMinutes ?? 0) / 60;
+  });
+
+  const completedIssues = useMemo(() => {
+    const issues = (linearFetcher?.data ?? []) as Issue[];
+    return issues.filter((issue) => !!issue.completedAt);
+  }, [linearFetcher.data]);
+
+  console.log(fitbitFetcher.data);
 
   const data = {
     labels,
@@ -127,11 +156,11 @@ export default function Daily() {
         data: timeSleeping,
         backgroundColor: "rgba(53, 162, 235, 0.7)",
       },
-      // {
-      //   label: "Exercise",
-      //   data: labels.map(() => Math.random() * 24),
-      //   backgroundColor: "rgba(255, 99, 132, 0.7)",
-      // },
+      {
+        label: "Exercise",
+        data: timeExercising,
+        backgroundColor: "rgba(255, 99, 132, 0.7)",
+      },
       {
         label: "Coding",
         data: totalTimeCoding,
@@ -139,5 +168,62 @@ export default function Daily() {
       },
     ],
   };
-  return <Bar options={options} data={data} />;
+  return (
+    <>
+      <div className="grid grid-cols-1 px-4 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+        <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
+          <h4 className="text-title-md font-bold text-white text-4xl">
+            {completedIssues?.length ?? 0}
+          </h4>
+          <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
+            <CheckBadgeIcon
+              className="h-5 w-5 flex-none text-indigo-400"
+              aria-hidden="true"
+            />
+            Completed Issues
+          </dt>
+        </div>
+
+        <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
+          <h4 className="text-title-md font-bold text-white text-4xl">
+            {completedIssues?.length ?? 0}
+          </h4>
+          <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
+            <CheckBadgeIcon
+              className="h-5 w-5 flex-none text-indigo-400"
+              aria-hidden="true"
+            />
+            Commits
+          </dt>
+        </div>
+
+        <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
+          <h4 className="text-title-md font-bold text-white text-4xl">
+            {completedIssues?.length ?? 0}
+          </h4>
+          <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
+            <CheckBadgeIcon
+              className="h-5 w-5 flex-none text-indigo-400"
+              aria-hidden="true"
+            />
+            Issues Pending
+          </dt>
+        </div>
+
+        <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
+          <h4 className="text-title-md font-bold text-white text-4xl">
+            {completedIssues?.length ?? 0}
+          </h4>
+          <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
+            <CheckBadgeIcon
+              className="h-5 w-5 flex-none text-indigo-400"
+              aria-hidden="true"
+            />
+            Productivity
+          </dt>
+        </div>
+      </div>
+      <Bar options={options} data={data} />;
+    </>
+  );
 }

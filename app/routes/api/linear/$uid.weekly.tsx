@@ -5,10 +5,9 @@ import { json } from "@remix-run/node";
 import { getCredentialsFetch } from "~/models/kolla.server";
 import { linearConnectorID } from "~/models/kolla.utils";
 import { weekStartEnd } from "~/utils/date";
-// # Get date for 7 days ago
-// seven_days_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-// seven_days_ago_iso = seven_days_ago.isoformat()
+
 const { start, end } = weekStartEnd();
+
 export const loader: LoaderFunction = async (args) => {
   const userId = args.params["uid"];
   if (!userId) {
