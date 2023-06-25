@@ -1,4 +1,5 @@
-import { formatDate, substractDays } from "~/utils/date";
+import type { StartEndToDates} from "~/utils/date";
+import { formatDate, startEndToDate, substractDays } from "~/utils/date";
 
 interface Args {
   start: Date;
@@ -169,3 +170,13 @@ export async function wakatimeSummary({ start, end, token }: Args) {
 
   return wakaJson;
 }
+
+export const wakaWeekly = (token: string) => async (args:StartEndToDates) => {
+    const {start,end} = startEndToDate(args)
+    const data = await wakatimeSummary({
+      start,
+      end,
+      token,
+    });
+    return data;
+  }

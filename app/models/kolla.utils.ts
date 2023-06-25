@@ -10,3 +10,5 @@ export const connectorIDs = [
   linearConnectorID,
   openaiConnectorID,
 ] as const;
+
+export type ConnectorID = typeof connectorIDs[number]

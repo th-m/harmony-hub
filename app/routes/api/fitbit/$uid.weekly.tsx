@@ -1,7 +1,8 @@
 import type { LoaderFunction } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { azmSummary, sleepSummary } from "~/models/fitbit.server";
-import { getCredentialsFetch } from "~/models/kolla.server";
+import { kClient } from "~/models/kolla.server";
+// import { getCredentialsFetch } from "~/models/kolla.server";
 import { fitbitConnectorId } from "~/models/kolla.utils";
 import { weekStartEnd } from "~/utils/date";
 
@@ -11,10 +12,11 @@ export const loader: LoaderFunction = async (args) => {
     return json({});
   }
 
-  const credentials = await getCredentialsFetch(
-    userId ?? "",
-    fitbitConnectorId
-  );
+  const credentials = await kClient.connectorCredentials({
+    consumer_id: userId ?? "",
+    connector_id: fitbitConnectorId,
+  });
+
   if (!credentials?.credentials?.token) {
     return json({});
   }

@@ -13,8 +13,8 @@ import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import { ClerkApp, ClerkCatchBoundary, useUser } from "@clerk/remix";
 import { Header } from "./components/header";
 import { KollaSDKProvider } from "@kolla/react-sdk";
-import type { ConsumerTokenResponse } from "./models/kolla.server";
 import { useEffect, useState } from "react";
+import type { ConsumerTokenResponse } from "@kolla/node-sdk/src/lib/types";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },

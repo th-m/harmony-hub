@@ -31,3 +31,13 @@ export const addDays = (date: Date, days: number) => {
 };
 
 
+export interface StartEndToDates { start: Date | string; end: Date | string };
+export const startEndToDate = ({start,end}:StartEndToDates) => {
+  if(typeof start === "string"){
+    start = new Date(start)
+  }
+  if(typeof end === "string"){
+    end = new Date(end)
+  }
+  return {start,end}
+}

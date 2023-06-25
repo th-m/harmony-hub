@@ -1,4 +1,5 @@
-import { formatDate } from "~/utils/date";
+import type { StartEndToDates} from "~/utils/date";
+import { formatDate, startEndToDate } from "~/utils/date";
 
 interface Args {
   start: Date;
@@ -158,4 +159,23 @@ export async function azmSummary({ end, token, period }: azmArgs) {
   const data:AZM[] = await fitbitAZM.json();
   
   return data;
+}
+
+
+export const fitbitWeekly = (token: string) => async (args:StartEndToDates) => {
+  const {start,end} = startEndToDate(args)
+  const [sleep, azm] = await Promise.all([
+    sleepSummary({
+      start,
+      end,
+      token,
+    }),
+    azmSummary({
+      end,
+      period: "7d",
+      token,
+    }),
+  ]);
+
+  return { sleep, azm };
 }

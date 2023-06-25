@@ -6,7 +6,7 @@ import { Link, NavLink } from "@remix-run/react";
 
 const navigation = [
   // { name: "Daily", href: "/dashboard/daily" },
-  { name: "Dashboard", href: "/dashboard/weekly" },
+  { name: "Dashboard", href: "/dashboard" },
   // { name: "Quarterly", href: "/dashboard/quarterly" },
 ];
 

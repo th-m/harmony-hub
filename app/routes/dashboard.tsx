@@ -98,7 +98,7 @@ export default function Daily() {
       "azm": AZMResponse;
     };
     const sleepData = resp.sleep.sleep;
-    console.log(resp)
+    
     const azm = resp['azm']["activities-active-zone-minutes"];
     const mappedSleep: Record<string, Sleep> = sleepData.reduce((acc, prev) => {
       if (weekMap[prev.dateOfSleep]) {
