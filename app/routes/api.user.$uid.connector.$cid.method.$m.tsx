@@ -3,13 +3,16 @@ import { json } from "@remix-run/node";
 import { kClient } from "~/models/kolla.server";
 import type { ConnectorID } from "~/models/kolla.utils";
 
-import { integrationMethods } from "~/models/integration.methods.server";
+import { ConnectorMethods, integrationMethods } from "~/models/integration.methods.server";
 
 export const action: ActionFunction = async (args) => {
   const consumer_id = args.params["uid"];
   const connector_id = args.params["cid"] as ConnectorID;
   const methods = integrationMethods?.[connector_id];
-  const method = args.params["m"] as keyof typeof methods;
+  const method = args.params["m"] as keyof typeof methods
+  if(!method){
+    return json({ message: "you need a method name in the params" }, 400);
+  }
   const _func = methods?.[method];
   const requestBody = await args.request.json();
   

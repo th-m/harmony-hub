@@ -7,42 +7,55 @@ import {
   wakatimeConnectorId,
 } from "./kolla.utils";
 import { wakaWeekly } from "./wakatime.server";
-import {  fitbitWeekly } from "./fitbit.server";
+import { fitbitWeekly } from "./fitbit.server";
 
 import { linearIssues } from "./linear.server";
 
 type IntegrationMethodInterface = {
-  [c in ConnectorID]:{
-    [k :string]:(token:string) => (...args: any) => Promise<any>
-  }
+  [c in ConnectorID]: {
+    [k: string]: (token: string) => (...args: any) => Promise<any>;
+  };
 };
 
 export const integrationMethods = {
   [wakatimeConnectorId]: {
-    weekly:wakaWeekly,
+    summary: wakaWeekly,
   },
   [fitbitConnectorId]: {
-    weekly:fitbitWeekly,
+    summary: fitbitWeekly,
   },
   [linearConnectorID]: {
-    weekly:linearIssues,
+    summary: linearIssues,
   },
   [openaiConnectorID]: {
-    weekly: (token: string) => async (args: any) => {
-     return {message:'implement me'}
+    summary: (token: string) => async (args: any) => {
+      return { message: "implement me" };
     },
   },
   [githubConnectorID]: {
-    weekly: (token: string) => async (args: any) => {
-      return {message:'implement me'}
+    summary: (token: string) => async (args: any) => {
+      return { message: "implement me" };
     },
   },
-} satisfies IntegrationMethodInterface
+} satisfies IntegrationMethodInterface;
 
-type IntegrationMethods = (typeof integrationMethods)
+type IntegrationMethods = typeof integrationMethods;
 
-export type ConnectorMethods<c extends ConnectorID> = keyof IntegrationMethods[c]
-export type ConnectorMethod<c extends ConnectorID, m extends ConnectorMethods<c>> =  ReturnType<IntegrationMethods[c][m]>
-export type ConnectorMethodRequest<c extends ConnectorID, m extends ConnectorMethods<c>> = ConnectorMethod<c,m> extends (...args:any) => any ? Parameters<ConnectorMethod<c,m>>[0]  :undefined
-export type ConnectorMethodResponse<c extends ConnectorID, m extends ConnectorMethods<c>> = ConnectorMethod<c,m> extends (...args:any) => any ? Awaited<ReturnType<ConnectorMethod<c,m>>> : undefined
-
+export type ConnectorMethods<c extends ConnectorID> =
+  keyof IntegrationMethods[c];
+export type ConnectorMethod<
+  c extends ConnectorID,
+  m extends ConnectorMethods<c>
+> = ReturnType<IntegrationMethods[c][m]>;
+export type ConnectorMethodRequest<
+  c extends ConnectorID,
+  m extends ConnectorMethods<c>
+> = ConnectorMethod<c, m> extends (...args: any) => any
+  ? Parameters<ConnectorMethod<c, m>>[0]
+  : undefined;
+export type ConnectorMethodResponse<
+  c extends ConnectorID,
+  m extends ConnectorMethods<c>
+> = ConnectorMethod<c, m> extends (...args: any) => any
+  ? Awaited<ReturnType<ConnectorMethod<c, m>>>
+  : undefined;
