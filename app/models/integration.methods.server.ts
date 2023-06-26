@@ -10,6 +10,7 @@ import { wakaWeekly } from "./wakatime.server";
 import { fitbitWeekly } from "./fitbit.server";
 
 import { linearIssues } from "./linear.server";
+import { openaiSummary } from "./openai.server";
 
 type IntegrationMethodInterface = {
   [c in ConnectorID]: {
@@ -28,9 +29,7 @@ export const integrationMethods = {
     summary: linearIssues,
   },
   [openaiConnectorID]: {
-    report: (token: string) => async (args: any) => {
-      return { message: "implement me" };
-    },
+    report: openaiSummary,
   },
   [githubConnectorID]: {
     summary: (token: string) => async (args: any) => {

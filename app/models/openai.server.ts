@@ -13,11 +13,12 @@ export const openaiSummary = (token: string) => async ({prompt}: PromptData) => 
     model: "text-davinci-003",
     prompt,
     temperature: 1,
-    max_tokens: 64,
+    max_tokens: 800,
     top_p: 1.0,
     frequency_penalty: 0.0,
     presence_penalty: 0.0,
   });
-
-  return response
+  console.log(response.data)
+  // console.log(response.request)
+  return response.data
 };

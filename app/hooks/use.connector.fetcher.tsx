@@ -25,7 +25,6 @@ export const useConnectorAutoFetcher = <
     if (authenticated && userId && connector_id && method) {
       if (fetcher.state === "idle" && !fetcher.data) {
         try {
-            console.log("did I fire")
           fetcher.submit(args ?? {}, {
             method: "post",
             action: `/api/user/${userId}/connector/${connector_id}/method/${String(
@@ -55,6 +54,7 @@ export const useConnectorFetcher = <
   const fetcher = useFetcher<ConnectorMethodResponse<cid, m>>();
 
   const fetch = useCallback(() => {
+    console.log({args})
     if (authenticated && userId && connector_id && method) {
       if (fetcher.state === "idle") {
         try {
@@ -72,5 +72,5 @@ export const useConnectorFetcher = <
     }
   }, [fetcher, authenticated, args, userId, connector_id, method]);
 
-  return { fetcher, fetch };
+  return [ fetcher, fetch ] as const;
 };

@@ -7,16 +7,16 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import {  useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import type {
-  AZM,
-  Sleep,
-} from "~/models/fitbit.server";
+import type { AZM, Sleep } from "~/models/fitbit.server";
 import type { WakatimeSummary } from "~/models/wakatime.server";
 import { addDays, formatDate, weekStartEnd } from "~/utils/date";
 import { msToHours } from "~/utils/time";
-import { useConnectorAutoFetcher } from "~/hooks/use.connector.fetcher";
+import {
+  useConnectorAutoFetcher,
+  useConnectorFetcher,
+} from "~/hooks/use.connector.fetcher";
 import { CheckBadgeIcon, NewspaperIcon } from "@heroicons/react/24/outline";
 import type { Issue } from "@linear/sdk";
 ChartJS.register(
@@ -85,6 +85,13 @@ export default function Daily() {
     end: end.toISOString(),
   });
 
+  const [prompt, setPrompt] = useState("");
+  const [openAIFetcher, openAIFetch] = useConnectorFetcher(
+    "openai-apikey-27922",
+    "report",
+    {prompt}
+  );
+
   const [sleepData, azmData] = useMemo(() => {
     if (!fitbitFetcher?.data) {
       return [];
@@ -124,15 +131,19 @@ export default function Daily() {
     [wakaFetcher.data]
   ) as WakatimeSummary;
 
-  const totalTimeCoding =
-    wakaData?.data?.map((datum) => datum.grand_total.total_seconds / 60 / 60) ??
-    [];
+  const totalTimeCoding = useMemo(() => {
+    return (
+      wakaData?.data?.map((datum) =>
+        Number((datum.grand_total.total_seconds / 60 / 60).toFixed(2))
+      ) ?? []
+    );
+  }, [wakaData?.data]);
 
   const timeSleeping = sleepData?.map((sleep) =>
     msToHours(sleep?.duration ?? 0)
   );
   const timeExercising = azmData?.map((azm) => {
-    return (azm?.value?.activeZoneMinutes ?? 0) / 60;
+    return Number(((azm?.value?.activeZoneMinutes ?? 0) / 60).toFixed(2));
   });
 
   const issuesSorted = useMemo(() => {
@@ -141,6 +152,43 @@ export default function Daily() {
     const pending = issues.filter((issue) => !issue.completedAt);
     return { completed, pending };
   }, [linearFetcher.data]);
+
+  useEffect(() => {
+    const p = `
+      Can you parse my weekly log data and give me a review and report on how well I did. 
+      I am wanting to get a healthy amount of sleep about 3 hours of exercise a week, and make good progress on my task.
+      Here is a map of activities and time spent for each days log time is seperated by a comma.
+      
+      sleep : ${timeSleeping?.join(",")}
+      exercise : ${timeExercising?.join(",")}
+      coding : ${totalTimeCoding?.join(",")}
+
+      Here are the tasks I completed.
+      ${issuesSorted.completed.map(
+        (task) => `
+        title: ${task.title}
+        description:${task.description}`
+      ).join(`
+      `)}
+      
+      Here are the tasks still pending.
+      ${issuesSorted.pending.map(
+        (task) => `
+        title: ${task.title} 
+        description:${task.description}`
+      ).join(`
+      `)}
+    `;
+    setPrompt(p);
+  }, [timeSleeping, timeExercising, totalTimeCoding, issuesSorted]);
+  
+  useEffect(() => {
+    console.log(prompt);
+  }, [prompt]);
+
+  useEffect(() => {
+    console.log(openAIFetcher?.data);
+  }, [openAIFetcher?.data]);
 
   const data = {
     labels,
@@ -212,7 +260,7 @@ export default function Daily() {
             Productivity
           </dt>
         </div>
-        <button className=" bg-slate-800 border-2 border-slate-700 hover:bg-slate-700 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+        <button className=" bg-slate-800 border-2 border-slate-700 hover:bg-slate-700 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center" onClick={() =>openAIFetch()}>
           <div className="flex items-center justify-center gap-x-3 text-base font-semibold leading-7 m-auto  text-white">
             <NewspaperIcon
               className="h-5 w-5 flex-none text-indigo-400"
