@@ -2,13 +2,16 @@ import type { StartEndToDates} from "~/utils/date";
 import { formatDate, startEndToDate, substractDays } from "~/utils/date";
 
 interface Args {
-  start: Date;
-  end: Date;
+  start: Date | string;
+  end: Date | string;
   token: string;
 }
 
 const getSummaryURL = ({ start, end }: Args) => {
   const intervalStart = formatDate(start);
+  if(typeof end === "string"){
+    end = new Date(end);
+  }
   const intervalEnd = formatDate(substractDays(end,1));
 
   return `https://wakatime.com/api/v1/users/current/summaries?start=${intervalStart}&end=${intervalEnd}`;
@@ -171,8 +174,9 @@ export async function wakatimeSummary({ start, end, token }: Args) {
   return wakaJson;
 }
 
-export const wakaWeekly = (token: string) => async (args:StartEndToDates) => {
-    const {start,end} = startEndToDate(args)
+export const wakaWeekly = (token: string) => async ({start,end}:StartEndToDates) => {
+    // const {start,end} = startEndToDate(args)
+  
     const data = await wakatimeSummary({
       start,
       end,

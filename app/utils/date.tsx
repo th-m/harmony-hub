@@ -1,4 +1,7 @@
-export const formatDate = (date: Date) => {
+export const formatDate = (date: Date | string) => {
+  if(typeof date === "string"){
+    date = new Date(date);
+  }
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
     2,
     "0"

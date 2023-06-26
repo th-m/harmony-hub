@@ -156,7 +156,7 @@ export async function azmSummary({ end, token, period }: azmArgs) {
 
 
   const fitbitAZM = await fetch(azmURL, requestOptions);
-  const data:AZM[] = await fitbitAZM.json();
+  const data:AZMResponse = await fitbitAZM.json();
   
   return data;
 }

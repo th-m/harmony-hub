@@ -1,6 +1,3 @@
-import { useAuth } from "@clerk/remix";
-import { useKollaEvents } from "@kolla/react-sdk";
-import { useFetcher } from "@remix-run/react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,13 +7,17 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useEffect, useMemo } from "react";
+import {  useMemo } from "react";
 import { Bar } from "react-chartjs-2";
-import type { AZM, AZMResponse, Sleep, SleepResponse } from "~/models/fitbit.server";
+import type {
+  AZM,
+  Sleep,
+} from "~/models/fitbit.server";
 import type { WakatimeSummary } from "~/models/wakatime.server";
 import { addDays, formatDate, weekStartEnd } from "~/utils/date";
 import { msToHours } from "~/utils/time";
-import { CheckBadgeIcon } from "@heroicons/react/24/outline";
+import { useConnectorAutoFetcher } from "~/hooks/use.connector.fetcher";
+import { CheckBadgeIcon, NewspaperIcon } from "@heroicons/react/24/outline";
 import type { Issue } from "@linear/sdk";
 ChartJS.register(
   CategoryScale,
@@ -68,38 +69,31 @@ export const options = {
 };
 
 export default function Daily() {
-  const wakaFetcher = useFetcher();
-  const linearFetcher = useFetcher();
-  const fitbitFetcher = useFetcher();
-  const { userId } = useAuth();
-  const { authenticated } = useKollaEvents();
-
-  useEffect(() => {
-    if (authenticated) {
-      if (wakaFetcher.state === "idle" && wakaFetcher.data == null) {
-        wakaFetcher.load(`/api/wakatime/${userId}/weekly`);
-      }
-      if (linearFetcher.state === "idle" && linearFetcher.data == null) {
-        linearFetcher.load(`/api/linear/${userId}/weekly`);
-      }
-      if (fitbitFetcher.state === "idle" && fitbitFetcher.data == null) {
-        fitbitFetcher.load(`/api/fitbit/${userId}/weekly`);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authenticated]);
+  const args = useMemo(() => {
+    return {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    };
+  }, []);
+  const wakaFetcher = useConnectorAutoFetcher("wakatime-2478", "summary", args);
+  const linearFetcher = useConnectorAutoFetcher("linear-783", "summary", {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  });
+  const fitbitFetcher = useConnectorAutoFetcher("fitbit-99562", "summary", {
+    start: start.toISOString(),
+    end: end.toISOString(),
+  });
 
   const [sleepData, azmData] = useMemo(() => {
     if (!fitbitFetcher?.data) {
       return [];
     }
-    const resp = fitbitFetcher.data as {
-      sleep: SleepResponse;
-      "azm": AZMResponse;
-    };
-    const sleepData = resp.sleep.sleep;
-    
-    const azm = resp['azm']["activities-active-zone-minutes"];
+    // fitbitFetcher.data.
+    const resp = fitbitFetcher.data;
+    const sleepData = resp?.sleep?.sleep ?? [];
+    const azm = resp?.azm?.["activities-active-zone-minutes"] ?? [];
+
     const mappedSleep: Record<string, Sleep> = sleepData.reduce((acc, prev) => {
       if (weekMap[prev.dateOfSleep]) {
         return { ...acc, [prev.dateOfSleep]: prev };
@@ -141,12 +135,12 @@ export default function Daily() {
     return (azm?.value?.activeZoneMinutes ?? 0) / 60;
   });
 
-  const completedIssues = useMemo(() => {
-    const issues = (linearFetcher?.data ?? []) as Issue[];
-    return issues.filter((issue) => !!issue.completedAt);
+  const issuesSorted = useMemo(() => {
+    const issues = linearFetcher?.data ?? [];
+    const completed = issues.filter((issue) => !!issue.completedAt);
+    const pending = issues.filter((issue) => !issue.completedAt);
+    return { completed, pending };
   }, [linearFetcher.data]);
-
-  console.log(fitbitFetcher.data);
 
   const data = {
     labels,
@@ -173,7 +167,7 @@ export default function Daily() {
       <div className="grid grid-cols-1 px-4 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
           <h4 className="text-title-md font-bold text-white text-4xl">
-            {completedIssues?.length ?? 0}
+            {issuesSorted.completed?.length ?? 0}
           </h4>
           <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
             <CheckBadgeIcon
@@ -185,9 +179,7 @@ export default function Daily() {
         </div>
 
         <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
-          <h4 className="text-title-md font-bold text-white text-4xl">
-            {completedIssues?.length ?? 0}
-          </h4>
+          <h4 className="text-title-md font-bold text-white text-4xl">...</h4>
           <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
             <CheckBadgeIcon
               className="h-5 w-5 flex-none text-indigo-400"
@@ -199,7 +191,7 @@ export default function Daily() {
 
         <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
           <h4 className="text-title-md font-bold text-white text-4xl">
-            {completedIssues?.length ?? 0}
+            {issuesSorted.pending?.length ?? 0}
           </h4>
           <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
             <CheckBadgeIcon
@@ -211,9 +203,7 @@ export default function Daily() {
         </div>
 
         <div className="rounded-sm bg-slate-800 py-6 px-7.5 shadow-default flex flex-col justify-center items-center">
-          <h4 className="text-title-md font-bold text-white text-4xl">
-            {completedIssues?.length ?? 0}
-          </h4>
+          <h4 className="text-title-md font-bold text-white text-4xl">...</h4>
           <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 pt-4 px-4 text-white">
             <CheckBadgeIcon
               className="h-5 w-5 flex-none text-indigo-400"
@@ -222,6 +212,15 @@ export default function Daily() {
             Productivity
           </dt>
         </div>
+        <button className=" bg-slate-800 border-2 border-slate-700 hover:bg-slate-700 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
+          <div className="flex items-center justify-center gap-x-3 text-base font-semibold leading-7 m-auto  text-white">
+            <NewspaperIcon
+              className="h-5 w-5 flex-none text-indigo-400"
+              aria-hidden="true"
+            />
+            <span>Generate Report</span>
+          </div>
+        </button>
       </div>
       <Bar options={options} data={data} />;
     </>

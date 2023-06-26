@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/remix";
 import { useKollaEvents } from "@kolla/react-sdk";
 import { useFetcher } from "@remix-run/react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type {
   ConnectorMethodRequest,
   ConnectorMethodResponse,
@@ -9,7 +9,7 @@ import type {
 } from "~/models/integration.methods.server";
 import type { ConnectorID } from "~/models/kolla.utils";
 
-export const useConnectorFetcher = <
+export const useConnectorAutoFetcher = <
   cid extends ConnectorID,
   m extends ConnectorMethods<cid>
 >(
@@ -23,16 +23,54 @@ export const useConnectorFetcher = <
 
   useEffect(() => {
     if (authenticated && userId && connector_id && method) {
-      if (fetcher.state === "idle") {
-        fetcher.submit(args ?? {}, {
-          method: "post",
-          action: `/api/user/${userId}/connector/${connector_id}/method/${String(
-            method
-          )}`,
-        });
+      if (fetcher.state === "idle" && !fetcher.data) {
+        try {
+            console.log("did I fire")
+          fetcher.submit(args ?? {}, {
+            method: "post",
+            action: `/api/user/${userId}/connector/${connector_id}/method/${String(
+              method
+            )}`,
+          });
+        } catch (error) {
+          console.log(error)
+        }
       }
     }
   }, [fetcher, authenticated, args, userId, connector_id, method]);
 
   return fetcher;
+};
+
+export const useConnectorFetcher = <
+  cid extends ConnectorID,
+  m extends ConnectorMethods<cid>
+>(
+  connector_id: cid,
+  method: m,
+  args: ConnectorMethodRequest<cid, m>
+) => {
+  const { userId } = useAuth();
+  const { authenticated } = useKollaEvents();
+  const fetcher = useFetcher<ConnectorMethodResponse<cid, m>>();
+
+  const fetch = useCallback(() => {
+    if (authenticated && userId && connector_id && method) {
+      if (fetcher.state === "idle") {
+        try {
+          console.log({ args });
+          fetcher.submit(args ?? {}, {
+            method: "post",
+            action: `/api/user/${userId}/connector/${connector_id}/method/${String(
+              method
+            )}`,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+  }, [fetcher, authenticated, args, userId, connector_id, method]);
+
+  return { fetcher, fetch };
 };

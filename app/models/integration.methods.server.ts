@@ -28,7 +28,7 @@ export const integrationMethods = {
     summary: linearIssues,
   },
   [openaiConnectorID]: {
-    summary: (token: string) => async (args: any) => {
+    report: (token: string) => async (args: any) => {
       return { message: "implement me" };
     },
   },
