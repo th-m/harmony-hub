@@ -5,10 +5,14 @@ interface Props {
   connector_id?: string;
   display_name?: string;
   icon?: string;
+  long_description?:string,
+  short_description?:string,
+  documentation_link?:string,
 }
 export const IntegrationCard = ({
   connector_id,
   display_name,
+  long_description,
   icon,
 }: Props) => {
   return (
@@ -17,8 +21,7 @@ export const IntegrationCard = ({
         {display_name}
       </h5>
       <p className="mb-3 font-normal text-gray-700 dark:text-gray-400">
-        Integrate with {display_name} so you can start exploring data and
-        generating reports
+       {long_description}
       </p>
       {connector_id && (
         <ConnectorButton

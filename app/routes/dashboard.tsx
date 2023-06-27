@@ -85,6 +85,9 @@ export default function Daily() {
     end: end.toISOString(),
   });
 
+  const fooFetcher = useConnectorAutoFetcher("wakatime-2478","project",{})
+  // fooFetcher.data
+  // const fatBurnTime = fooFetcher.data?.azm?.["activities-active-zone-minutes"].map(azm => azm.value.fatBurnActiveZoneMinutes).reduce(())
   const [prompt, setPrompt] = useState("");
   const [openAIFetcher, openAIFetch] = useConnectorFetcher(
     "openai-apikey-27922",

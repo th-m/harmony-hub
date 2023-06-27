@@ -12,7 +12,7 @@
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@kolla/node-sdk": "^0.0.1",
-    "@kolla/react-sdk": "^0.1.71",
+    "@kolla/react-sdk": "^0.1.72",
     "@linear/sdk": "^6.0.0",
     "@netlify/functions": "^1.4.0",
     "@remix-run/css-bundle": "^1.17.1",

@@ -28,7 +28,6 @@ export const action: ActionFunction = async (args) => {
 
   // @ts-ignore
   const _func = methods?.[method];
-
   const requestData = await args.request.formData();
   const requestBody = formDataToObject(requestData);
 
