@@ -4,6 +4,7 @@ import {
   githubConnectorID,
   linearConnectorID,
   openaiConnectorID,
+  rescueTimeID,
   wakatimeConnectorId,
 } from "./kolla.utils";
 import { wakaWeekly } from "./wakatime.server";
@@ -11,12 +12,6 @@ import { fitbitWeekly } from "./fitbit.server";
 
 import { linearIssues } from "./linear.server";
 import { openaiSummary } from "./openai.server";
-
-type IntegrationMethodInterface = {
-  [c in ConnectorID]: {
-    [k: string]: (token: string) => (...args: any) => Promise<any>;
-  };
-};
 
 export const integrationMethods = {
   [wakatimeConnectorId]: {
@@ -36,7 +31,18 @@ export const integrationMethods = {
       return { message: "implement me" };
     },
   },
+  [rescueTimeID]: {
+    summary: (token: string) => async (args: any) => {
+      return { message: "implement me" };
+    },
+  },
 } satisfies IntegrationMethodInterface;
+
+type IntegrationMethodInterface = {
+  [c in ConnectorID]: {
+    [k: string]: (token: string) => (...args: any) => Promise<any>;
+  };
+};
 
 type IntegrationMethods = typeof integrationMethods;
 
