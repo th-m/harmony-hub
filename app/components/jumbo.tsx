@@ -11,7 +11,7 @@ const features = [
     description:
       "Give your manager reports detailing everything you did, and how long it took with a simple click of a button.",
     href: "#",
-    imgSrc: "/assets/images/home/reports.webp",
+    imgSrc: "/assets/images/home-page/reports.webp",
     icon: NewspaperIcon,
   },
   {
@@ -19,7 +19,7 @@ const features = [
     description:
       "Explore your data and discover interesting relations between habits, for example see how sleep effects your code time.",
     href: "#",
-    imgSrc: "/assets/images/home/habits.webp",
+    imgSrc: "/assets/images/home-page/habits.webp",
     icon: ChartPieIcon,
   },
   {
@@ -27,7 +27,7 @@ const features = [
     description:
       'The data shown is best used as "lead measures" they help show if you are on track toward meeting your goal.',
     href: "#",
-    imgSrc: "/assets/images/home/productivity.webp",
+    imgSrc: "/assets/images/home-page/productivity.webp",
     icon: SparklesIcon,
   },
 ];

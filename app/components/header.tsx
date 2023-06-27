@@ -24,7 +24,7 @@ export function Header() {
             <span className="sr-only">Your Company</span>
             <img
               className="h-8 w-auto"
-              src="/assets/logo/mark.png"
+              src="/assets/images/logo/mark.png"
               alt="harmony hub logo"
             />
           </Link>
@@ -85,7 +85,7 @@ export function Header() {
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Harmony Hub</span>
-              <img className="h-8 w-auto" src="/assets/logo/mark.png" alt="" />
+              <img className="h-8 w-auto" src="/assets/images/logo/mark.png" alt="" />
             </a>
             <button
               type="button"
