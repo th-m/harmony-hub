@@ -54,7 +54,7 @@ export default function Index() {
       </SignedIn>
       <SignedOut>
         <div className="pt-24 max-w-4xl m-auto ">
-          <img src="/assets/logo/secondary.png" />
+          <img src="/assets/logo/secondary.png" alt="Harmony Hub Logo and Brand"/>
         </div>
       </SignedOut>
       <Jumbo />
