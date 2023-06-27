@@ -58,7 +58,6 @@ export const useConnectorFetcher = <
     if (authenticated && userId && connector_id && method) {
       if (fetcher.state === "idle") {
         try {
-          console.log({ args });
           fetcher.submit(args ?? {}, {
             method: "post",
             action: `/api/user/${userId}/connector/${connector_id}/method/${String(
