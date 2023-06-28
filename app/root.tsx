@@ -6,13 +6,12 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
 } from "@remix-run/react";
 import stylesheet from "~/tailwind.css";
 import { rootAuthLoader } from "@clerk/remix/ssr.server";
 import { ClerkApp, ClerkCatchBoundary, useUser } from "@clerk/remix";
 import { Header } from "./components/header";
-import { KollaSDKProvider } from "@kolla/react-sdk";
+import { KollaSDKProvider, useKollaSDK } from "@kolla/react-sdk";
 import { useEffect, useState } from "react";
 import type { ConsumerTokenResponse } from "@kolla/node-sdk/src/lib/types";
 
@@ -55,15 +54,7 @@ function App() {
       </head>
       <body>
         <KollaSDKProvider token={consumerToken?.token}>
-          <div
-            className="bg-gray-900 min-h-screen"
-            style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}
-          >
-            <Header />
-            <main>
-              <Outlet />
-            </main>
-          </div>
+          <WrappedApp />
         </KollaSDKProvider>
         <ScrollRestoration />
         <Scripts />
@@ -71,5 +62,21 @@ function App() {
       </body>
     </html>
   );
+}
+const WrappedApp = () => {
+  const sdk = useKollaSDK();
+  useEffect(()=>{
+    sdk.setProgramId('qg5d5teuibhuxds5welcmnpk64')
+  },[])
+  
+return (<div
+  className="bg-gray-900 min-h-screen"
+  style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}
+>
+  <Header />
+  <main>
+    <Outlet />
+  </main>
+</div>)
 }
 export default ClerkApp(App);

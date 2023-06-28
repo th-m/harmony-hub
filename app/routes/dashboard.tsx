@@ -148,8 +148,8 @@ export default function Daily() {
 
   const issuesSorted = useMemo(() => {
     const issues = linearFetcher?.data ?? [];
-    const completed = issues.filter((issue) => !!issue.completedAt);
-    const pending = issues.filter((issue) => !issue.completedAt);
+    const completed = issues.filter((issue:any) => !!issue.completedAt);
+    const pending = issues.filter((issue:any) => !issue.completedAt);
     return { completed, pending };
   }, [linearFetcher.data]);
 
@@ -165,7 +165,7 @@ export default function Daily() {
 
       Here are the tasks I completed.
       ${issuesSorted.completed.map(
-        (task) => `
+        (task:{title:string,description:string}) => `
         title: ${task.title}
         description:${task.description}`
       ).join(`
@@ -173,7 +173,7 @@ export default function Daily() {
       
       Here are the tasks still pending.
       ${issuesSorted.pending.map(
-        (task) => `
+        (task:{title:string,description:string}) => `
         title: ${task.title} 
         description:${task.description}`
       ).join(`
