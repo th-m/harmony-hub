@@ -165,7 +165,7 @@ export default function Daily() {
 
       Here are the tasks I completed.
       ${issuesSorted.completed.map(
-        (task:{title:string,description:string}) => `
+        (task:{title:string,description?:string}) => `
         title: ${task.title}
         description:${task.description}`
       ).join(`
@@ -173,7 +173,7 @@ export default function Daily() {
       
       Here are the tasks still pending.
       ${issuesSorted.pending.map(
-        (task:{title:string,description:string}) => `
+        (task:{title:string,description?:string}) => `
         title: ${task.title} 
         description:${task.description}`
       ).join(`
